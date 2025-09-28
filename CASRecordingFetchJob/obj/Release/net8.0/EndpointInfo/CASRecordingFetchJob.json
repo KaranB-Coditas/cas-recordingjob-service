@@ -1,0 +1,260 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "CASRecordingFetchJob",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/RecordingJob/Execute": {
+      "get": {
+        "tags": [
+          "RecordingJob"
+        ],
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "leadtransitId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "restoreCdrRecording",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "addPauseAnnouncement",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "isDualConsent",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "generateSignedUrl",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/RecordingJob/RestoreAllCdrRecordingOnVoipServer": {
+      "get": {
+        "tags": [
+          "RecordingJob"
+        ],
+        "parameters": [
+          {
+            "name": "rawDateInput",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/RecordingJob/RestoreCdrRecordingOnVoipServer": {
+      "post": {
+        "tags": [
+          "RecordingJob"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Cdr"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Cdr"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Cdr"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/RecordingJob/GenerateSignedUrl": {
+      "get": {
+        "tags": [
+          "RecordingJob"
+        ],
+        "parameters": [
+          {
+            "name": "leadtransitId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "isDualConsent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "conversationDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "isUserControlledRecording",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Cdr": {
+        "type": "object",
+        "properties": {
+          "cdrId": {
+            "type": "string",
+            "nullable": true
+          },
+          "caller": {
+            "type": "string",
+            "nullable": true
+          },
+          "called": {
+            "type": "string",
+            "nullable": true
+          },
+          "callDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "callEnd": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "callId": {
+            "type": "string",
+            "nullable": true
+          },
+          "duration": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "connectDuration": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sipCalledPort": {
+            "type": "string",
+            "nullable": true
+          },
+          "sipCalledIp": {
+            "type": "string",
+            "nullable": true
+          },
+          "sipCallerIp": {
+            "type": "string",
+            "nullable": true
+          },
+          "sipCallerPort": {
+            "type": "string",
+            "nullable": true
+          },
+          "codecA": {
+            "type": "string",
+            "nullable": true
+          },
+          "codecB": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}
