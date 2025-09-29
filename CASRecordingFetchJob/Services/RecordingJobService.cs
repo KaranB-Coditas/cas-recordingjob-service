@@ -26,6 +26,7 @@ using Polly.CircuitBreaker;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Security.Cryptography.Xml;
 using StackExchange.Redis;
+using static CASRecordingFetchJob.Helpers.CommonFunctions;
 
 namespace CASRecordingFetchJob.Services
 {
@@ -49,7 +50,6 @@ namespace CASRecordingFetchJob.Services
         private readonly ICorrelationIdAccessor _correlationIdAccessor;
         private readonly bool _processDualConsentRecording;
         private readonly int _signedUrlExpiredTimeHours;
-        private readonly IConnectionMultiplexer _redis;
         private readonly IDistributedLockManager _lockManager;
 
         public RecordingJobService(
@@ -109,12 +109,18 @@ namespace CASRecordingFetchJob.Services
             endDate ??= startDate;
 
             if (endDate < startDate)
+            {
+                _logger.LogInformation("End date must be greater than or equal to start date");
                 return new BadRequestObjectResult(new { error = "End date must be greater than or equal to start date" });
+            }
 
             isRestoreCdrRecordingEnabled = isRestoreCdrRecordingEnabled || _cdrRestoreOnJob;
             var isRestoreCdrRecordingRequired = startDate < DateTime.Now.AddDays(-_cdrDataRetentionDays);
             if (!isRestoreCdrRecordingEnabled && isRestoreCdrRecordingRequired && leadtransitId == 0)
+            {
+                _logger.LogInformation("Date must be within the last 6 days. CDR recording may not be available for processing.");
                 return new BadRequestObjectResult(new { error = "Date must be within the last 6 days. CDR recording may not be available for processing." });
+            }
 
             var recordingJobResponse = new RecordingJobResponse
             {
@@ -181,21 +187,22 @@ namespace CASRecordingFetchJob.Services
                     var recordingJobInfo = new RecordingDetails { LeadTransitId = id };
 
                     var lockHandle = await _lockManager.AcquireLockAsync($"lock:{id}", TimeSpan.FromMinutes(5));
+                    _logger.LogInformation($"Locked leadtransitid {id} for processing");
 
                     try
                     {
-                        if (lockHandle == null)
-                        {
-                            Console.WriteLine($"Recording {id} is already being processed.");
-                            recordingJobInfo.IsRecordingAlreadybeingProcessed = true;
-                            return;
-                        }
-
                         var agentTrimTime = 0;
                         var conversation = callDetails.Where(a => a.LeadtransitId == id).ToList();
                         var conversationDate = _commonFunctions.ConvertTimeZoneFromUtcToPST(conversation[0].LeadCatchTime);
                         var clientId = conversation[0].ClientId;
                         var recordCall = conversation[0].RecordCall;
+
+                        if (lockHandle == null)
+                        {
+                            _logger.LogInformation($"[{clientId}] [{leadtransitId}] Recording {id} is already being processed.");
+                            recordingJobInfo.IsRecordingAlreadybeingProcessed = true;
+                            return;
+                        }
 
                         if (!recordCall)
                         {
@@ -209,15 +216,28 @@ namespace CASRecordingFetchJob.Services
 
                         var recordingIntervals = _commonFunctions.GetRecordingIntervals(conversation[0].RecordingInterval, agentTrimTime);
 
-                        _logger.LogInformation($"[{clientId}] [{id}] Started Processing Recording for LeadtransitId {id}, Conversation on {conversationDate} PST, Agent Trim Time {agentTrimTime} sec");
-
                         string recordingsBasePath = _commonFunctions.GetRecordingPath(conversationDate);
 
                         string gcsRecordingPath = _commonFunctions.GetGcsRecordingPath(conversationDate);
 
+                        _logger.LogInformation($"[{clientId}] [{id}] Started Processing Recording for LeadtransitId {id}, Conversation on {conversationDate} PST, Agent Trim Time {agentTrimTime} sec");
+
                         Directory.CreateDirectory(recordingsBasePath);
 
-                        string audioFileName = Path.Combine(recordingsBasePath, id.ToString() + _commonFunctions.GetSupportedAudioFormat());
+                        var isUserControlledRecording = (recordingIntervals != null && recordingIntervals.Count > 0);
+                        
+                        RecordingType recordingType = isDualConsent 
+                        ? RecordingType.DualConsent : isUserControlledRecording ? RecordingType.UserControlled : RecordingType.Normal;
+
+                        var audioFormat = _commonFunctions.GetSupportedAudioFormat();
+                        var audioFile = recordingType switch
+                        {
+                            RecordingType.DualConsent => $"{id}{DualConsent}{audioFormat}",
+                            RecordingType.UserControlled => $"{id}{UserControlled}{audioFormat}",
+                            _ => id + audioFormat
+                        };
+
+                        string audioFileName = Path.Combine(recordingsBasePath, audioFile);
                         if (File.Exists(audioFileName))
                         {
                             recordingJobInfo.IsFileExist = true;
@@ -265,6 +285,14 @@ namespace CASRecordingFetchJob.Services
                             failedIds.Add(id);
                             return;
                         }
+
+                        if (!_commonFunctions.TryValidateRecording(convertedRecordings, audioFile, id))
+                        {
+                            _logger.LogInformation($"[{clientId}] [{id}] Recording variant {recordingType.ToString()} failed to convert");
+                            failedIds.Add(id);
+                            return;
+                        }
+
                         recordingJobInfo.IsConvertedToMp3Variants = true;
 
                         var MovingToContentServerResult = await _recordingMover.MoveToContentServerAsync(convertedRecordings, recordingsBasePath, id, clientId);
@@ -280,7 +308,7 @@ namespace CASRecordingFetchJob.Services
                             return;
                         }
                         if (generateSignedUrl)
-                            recordingJobInfo.SignedUrl = await GenerateSignedUrl(id, isDualConsent, recordingIntervals != null && recordingIntervals.Count > 0, gcsRecordingPath);
+                            recordingJobInfo.SignedUrl = await GenerateSignedUrl(id, isDualConsent, recordingIntervals != null && recordingIntervals.Count > 0, gcsRecordingPath, clientId);
 
                         successfulIds.Add(id);
                     }
@@ -293,6 +321,7 @@ namespace CASRecordingFetchJob.Services
                     {
                         processDetails.Add(recordingJobInfo);
                         lockHandle?.Dispose();
+                        _logger.LogInformation($"Lock released for leadtransitid {id}");
                     }
                 });
 
@@ -308,7 +337,7 @@ namespace CASRecordingFetchJob.Services
             return new OkObjectResult(recordingJobResponse);
         }
 
-        public async Task<string> GenerateSignedUrl(int leadtransitId, bool isDualConsent, bool isUserControlledRecording, string gcsRecordingPath)
+        public async Task<string> GenerateSignedUrl(int leadtransitId, bool isDualConsent, bool isUserControlledRecording, string gcsRecordingPath, int companyId = 0)
         {
             var objectName = string.Join("/", gcsRecordingPath, leadtransitId + "_original.mp3");
             if (isDualConsent)
@@ -321,9 +350,14 @@ namespace CASRecordingFetchJob.Services
             {
                 signedUrl = await _gcsHelper.SignUrlAsync(objectName, TimeSpan.FromHours(_signedUrlExpiredTimeHours));
             }
+            catch (Google.GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound)
+            {
+                _logger.LogError(ex,$"[{companyId}] [{leadtransitId}] Signed Url generation failed for {objectName}. Retry with objectName {leadtransitId}.mp3");
+                signedUrl = await _gcsHelper.SignUrlAsync($"{leadtransitId}.mp3", TimeSpan.FromHours(_signedUrlExpiredTimeHours));   
+            }
             catch (Exception e)
             {
-                _logger.LogError(e, $"[{leadtransitId}] Signed Url generation failed for {objectName}");
+                _logger.LogError(e, $"[{companyId}] [{leadtransitId}] Signed Url generation failed for {objectName}");
             }
             return signedUrl;
         }

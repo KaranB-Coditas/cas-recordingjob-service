@@ -18,16 +18,23 @@ namespace CASRecordingFetchJob.Helpers
         }
         public async Task<IDisposable?> AcquireLockAsync(string resourceKey, TimeSpan expiry)
         {
-            var db = _redis.GetDatabase();
-            var lockKey = $"lock:{resourceKey}";
-            var lockValue = Guid.NewGuid().ToString();
+            try
+            {
+                var db = _redis.GetDatabase();
+                var lockKey = $"lock:{resourceKey}";
+                var lockValue = Guid.NewGuid().ToString();
 
-            bool acquired = await db.StringSetAsync(key: lockKey, value: lockValue, expiry: expiry, when: When.NotExists);
+                bool acquired = await db.StringSetAsync(key: lockKey, value: lockValue, expiry: expiry, when: When.NotExists);
 
-            if (!acquired)
+                if (!acquired)
+                    return null;
+
+                return new RedisLock(db, lockKey, lockValue);
+            }
+            catch (Exception)
+            {
                 return null;
-
-            return new RedisLock(db, lockKey, lockValue);
+            }
         }
 
         private class RedisLock : IDisposable

@@ -3,49 +3,14 @@
     "ContainingType": "CASRecordingFetchJob.Controllers.RecordingJobController",
     "Method": "Execute",
     "RelativePath": "api/RecordingJob/Execute",
-    "HttpMethod": "GET",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "startDate",
-        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "endDate",
-        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "companyId",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "leadtransitId",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "restoreCdrRecording",
-        "Type": "System.Boolean",
-        "IsRequired": false
-      },
-      {
-        "Name": "addPauseAnnouncement",
-        "Type": "System.Boolean",
-        "IsRequired": false
-      },
-      {
-        "Name": "isDualConsent",
-        "Type": "System.Boolean",
-        "IsRequired": false
-      },
-      {
-        "Name": "generateSignedUrl",
-        "Type": "System.Boolean",
-        "IsRequired": false
+        "Name": "request",
+        "Type": "CASRecordingFetchJob.Model.ExecuteJobPayload",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -54,45 +19,14 @@
     "ContainingType": "CASRecordingFetchJob.Controllers.RecordingJobController",
     "Method": "GenerateSignedUrl",
     "RelativePath": "api/RecordingJob/GenerateSignedUrl",
-    "HttpMethod": "GET",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "leadtransitId",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "isDualConsent",
-        "Type": "System.Boolean",
-        "IsRequired": false
-      },
-      {
-        "Name": "conversationDate",
-        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "isUserControlledRecording",
-        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "CASRecordingFetchJob.Controllers.RecordingJobController",
-    "Method": "RestoreCDRRecordings",
-    "RelativePath": "api/RecordingJob/RestoreAllCdrRecordingOnVoipServer",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "rawDateInput",
-        "Type": "System.String",
-        "IsRequired": false
+        "Name": "signedUrlPayload",
+        "Type": "CASRecordingFetchJob.Model.SignedUrlPayload",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -109,6 +43,22 @@
         "Name": "request",
         "Type": "System.Collections.Generic.List\u00601[[CASRecordingFetchJob.Model.Cdr, CASRecordingFetchJob, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CASRecordingFetchJob.Controllers.RecordingJobController",
+    "Method": "RestoreCDRRecordings",
+    "RelativePath": "api/RecordingJob/RestoreCdrRecordingOnVoipServerByDate",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "rawDateInput",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []

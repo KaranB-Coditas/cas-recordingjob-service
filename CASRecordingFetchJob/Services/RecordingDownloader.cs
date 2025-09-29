@@ -27,6 +27,7 @@ namespace CASRecordingFetchJob.Services
         }
         public async Task<Stream?> RestoreAndFetchCdrRecordingAsync(DateTime startTimeFrom, DateTime startTimeTo, string called, int leadtransitId = 0, int companyId = 0, bool isRestoreCdrRecording = false)
         {
+            _logger.LogInformation($"[{companyId}] [{leadtransitId}] In {nameof(RestoreAndFetchCdrRecordingAsync)}, called {called}, restore cdr recording {isRestoreCdrRecording}");
             try
             {
                 using var httpClient = new HttpClient();
@@ -53,6 +54,7 @@ namespace CASRecordingFetchJob.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"[{companyId}] [{leadtransitId}] Error in method {nameof(RestoreAndFetchCdrRecordingAsync)}");
                 return null;
             }
             return null;
@@ -89,6 +91,7 @@ namespace CASRecordingFetchJob.Services
 
         public async Task<List<Cdr>> FetchCdrDetails(List<Conversation> conversations)
         {
+            _logger.LogInformation($"Restoring CDR recordings on VOIP Monitor Server, conversation count {conversations.Count}");
             var cdrPayloadData = _commonFunctions.GetCdrPayloadData(conversations);
             var cdrBag = new ConcurrentBag<Cdr>();
 
@@ -154,28 +157,37 @@ namespace CASRecordingFetchJob.Services
             return await _sshClientHelper.RunRestoreRecordingPcapScriptAsync(parameter);
         }
 
-        public async Task<string?> SaveStreamToFileAsync(Stream inputStream, string outputFilePath)
+        public async Task<string?> SaveStreamToFileAsync(Stream inputStream, string outputFilePath, int leadtransitId, int companyId)
         {
-            if (inputStream == null)
+            try
             {
-                _logger.LogInformation("Input Stream is Empty");
+                if (inputStream == null)
+                {
+                    _logger.LogInformation($"[{companyId}] [{leadtransitId}] Input Stream is Empty");
+                    return null;
+                }
+
+                if (string.IsNullOrWhiteSpace(outputFilePath))
+                {
+                    _logger.LogInformation($"[{companyId}] [{leadtransitId}] Output file path cannot be null or empty");
+                    return null;
+                }
+
+                if (inputStream.CanSeek)
+                    inputStream.Position = 0;
+
+                Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath)!);
+
+                using var fileStream = File.Create(outputFilePath);
+                await inputStream.CopyToAsync(fileStream);
+                return outputFilePath;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"[{companyId}] [{leadtransitId}] Error saving stream to file {outputFilePath}");
                 return null;
             }
-
-            if (string.IsNullOrWhiteSpace(outputFilePath))
-            {
-                _logger.LogInformation("Output file path cannot be null or empty");
-                return null;
-            }
-
-            if (inputStream.CanSeek)
-                inputStream.Position = 0;
-
-            Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath)!);
-
-            using var fileStream = File.Create(outputFilePath);
-            await inputStream.CopyToAsync(fileStream);
-            return outputFilePath;
+            
         }
 
         public async Task<string?> GetAnnouncementFile(string basePath, string pauseAnnouncementRelativePath)

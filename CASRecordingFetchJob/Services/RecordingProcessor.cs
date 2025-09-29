@@ -38,7 +38,7 @@ namespace CASRecordingFetchJob.Services
             {
                 if (wavStream == null || wavStream.Length == 0)
                     throw new InvalidOperationException("Input stream is empty.");
-                _logger.LogInformation($"[{companyId}] [{leadtransitId}] Started Converting Recordins to Mp3");
+                _logger.LogInformation($"[{companyId}] [{leadtransitId}] Started Converting Recordins to Mp3 variants");
 
                 byte[] wavBytes;
                 using (var ms = new MemoryStream())
@@ -70,7 +70,7 @@ namespace CASRecordingFetchJob.Services
                 if (saveWavFile)
                     convertedRecordings[$"{leadtransitId}.wav"] = new MemoryStream(wavBytes);
 
-                _logger.LogInformation($"[{companyId}] [{leadtransitId}] Ended Converting Recordins to Mp3");
+                _logger.LogInformation($"[{companyId}] [{leadtransitId}] Ended Converting Recordins to Mp3 variants");
             }
             catch (Exception ex)
             {
@@ -108,63 +108,66 @@ namespace CASRecordingFetchJob.Services
         }
         public async Task<KeyValuePair<string, Stream>> ClipRecording(Stream wavStream, int leadTransitId, int companyId, List<RecordInterval> recordingInterval, string recordingBasePath, bool addPauseAnnouncement)
         {
-            if (recordingInterval == null || recordingInterval.Count == 0)
-                return new KeyValuePair<string, Stream>();
-
-            const string pauseAnnouncementRelativePath = @"RecordingAnnouncement\_RecordingStopped.mp3";
-            recordingBasePath = $"{recordingBasePath}\\{leadTransitId}_temp";
-
-            string? announcementFile = null;
-
-            var clippedFiles = new List<string>();
-
-            var wavFilePath = await _recordingDownloader.SaveStreamToFileAsync(wavStream, $"{recordingBasePath}\\{leadTransitId}.wav") 
-                ?? throw new InvalidOperationException("Failed to save WAV stream to file.");
-
-            if (addPauseAnnouncement)
-                announcementFile = await _recordingDownloader.GetAnnouncementFile(recordingBasePath, pauseAnnouncementRelativePath);
-
-            foreach (var interval in recordingInterval)
-            {
-
-                var tempFilePath = Path.Combine(recordingBasePath, $"{leadTransitId}_{interval.RecordStartTime}_{interval.RecordStopTime}.mp3");
-                Directory.CreateDirectory(Path.GetDirectoryName(tempFilePath)!);
-
-                var isClipped = await ConvertWithFfmpegUsingFileInputAsync(
-                    wavFilePath, 
-                    tempFilePath,
-                    companyId, 
-                    leadTransitId,
-                    options => options.WithCustomArgument($"-ss {interval.RecordStartTime} -to {interval.RecordStopTime}")
-                    );
-
-                if (isClipped)
-                {
-                    clippedFiles.Add(tempFilePath);
-
-                    if (announcementFile != null)
-                        clippedFiles.Add(announcementFile);
-                }
-            }
-            var finalFilePath = Path.Combine(recordingBasePath, $"{leadTransitId}_clipped.mp3");
-            Directory.CreateDirectory(Path.GetDirectoryName(finalFilePath)!);
-
-            var result = await ConcatWithFfmpegUsingFileInputAsync(clippedFiles, finalFilePath, companyId, leadTransitId, options => {});
-
             var memoryStream = new MemoryStream();
-            using (var fileStream = File.OpenRead(finalFilePath))
-                await fileStream.CopyToAsync(memoryStream);
-
-            memoryStream.Position = 0;
-
             try
             {
+                _logger.LogInformation($"[{companyId}] [{leadTransitId}] Started Clipping Recording");
+                if (recordingInterval == null || recordingInterval.Count == 0)
+                    return new KeyValuePair<string, Stream>();
+
+                const string pauseAnnouncementRelativePath = @"RecordingAnnouncement\_RecordingStopped.mp3";
+                recordingBasePath = $"{recordingBasePath}\\{leadTransitId}_temp";
+
+                string? announcementFile = null;
+
+                var clippedFiles = new List<string>();
+
+                var wavFilePath = await _recordingDownloader.SaveStreamToFileAsync(wavStream, $"{recordingBasePath}\\{leadTransitId}.wav", leadTransitId, companyId) ??
+                    throw new InvalidOperationException("Failed to save WAV stream to file.");
+
+                if (addPauseAnnouncement)
+                    announcementFile = await _recordingDownloader.GetAnnouncementFile(recordingBasePath, pauseAnnouncementRelativePath);
+
+                foreach (var interval in recordingInterval)
+                {
+
+                    var tempFilePath = Path.Combine(recordingBasePath, $"{leadTransitId}_{interval.RecordStartTime}_{interval.RecordStopTime}.mp3");
+                    Directory.CreateDirectory(Path.GetDirectoryName(tempFilePath)!);
+
+                    var isClipped = await ConvertWithFfmpegUsingFileInputAsync(
+                        wavFilePath,
+                        tempFilePath,
+                        companyId,
+                        leadTransitId,
+                        options => options.WithCustomArgument($"-ss {interval.RecordStartTime} -to {interval.RecordStopTime}")
+                        );
+
+                    if (isClipped)
+                    {
+                        clippedFiles.Add(tempFilePath);
+
+                        if (announcementFile != null)
+                            clippedFiles.Add(announcementFile);
+                    }
+                }
+                var finalFilePath = Path.Combine(recordingBasePath, $"{leadTransitId}_clipped.mp3");
+                Directory.CreateDirectory(Path.GetDirectoryName(finalFilePath)!);
+                
+                var result = await ConcatWithFfmpegUsingFileInputAsync(clippedFiles, finalFilePath, companyId, leadTransitId, options => { });
+
+                using (var fileStream = File.OpenRead(finalFilePath))
+                    await fileStream.CopyToAsync(memoryStream);
+
+                memoryStream.Position = 0;
+
                 Directory.Delete(recordingBasePath, recursive: true);
+
+                _logger.LogInformation($"[{companyId}] [{leadTransitId}] Ended Clipping Recording");
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"[{companyId}] [{leadTransitId}] Error in method {nameof(ClipRecording)}");
             }
-
             return new KeyValuePair<string, Stream>($"{leadTransitId}_userControlledConsent.mp3", memoryStream);
         }
         private async Task<Stream> ConvertWithFfmpegUsingStreamInputAsync(Stream inputStream, int companyId, int leadTransitId, Action<FFMpegArgumentOptions> configureOptions)
@@ -191,7 +194,7 @@ namespace CASRecordingFetchJob.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[{companyId}] [{leadTransitId}] FFmpeg conversion failed", ex);
+                _logger.LogError($"[{companyId}] [{leadTransitId}] FFmpeg conversion failed, method {nameof(ConvertWithFfmpegUsingStreamInputAsync)}", ex);
                 outputStream.Dispose();
                 throw;
             }
@@ -214,8 +217,8 @@ namespace CASRecordingFetchJob.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[{companyId}] [{leadTransitId}] FFmpeg conversion failed", ex);
-                return false;
+                _logger.LogError(ex, $"[{companyId}] [{leadTransitId}] FFmpeg conversion failed");
+                throw new InvalidOperationException("FFmpeg conversion failed", ex);
             }
         }
         public async Task<bool> ConcatWithFfmpegUsingFileInputAsync(List<string> inputFileList, string outputFile, int companyId, int leadTransitId, Action<FFMpegArgumentOptions> configureOptions)
@@ -236,7 +239,7 @@ namespace CASRecordingFetchJob.Services
             catch (Exception ex)
             {
                 _logger.LogError($"[{companyId}] [{leadTransitId}] FFmpeg conversion failed", ex);
-                return false;
+                throw new InvalidOperationException("FFmpeg conversion failed", ex);
             }
         }
     }

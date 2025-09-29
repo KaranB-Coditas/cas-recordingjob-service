@@ -161,5 +161,22 @@ namespace CASRecordingFetchJob.Helpers
                 );
         }
 
+        public enum RecordingType
+        {
+            Normal = 0,
+            DualConsent = 1,
+            UserControlled = 2
+        }
+        public const string DualConsent = "_pitcher";
+        public const string UserControlled = "_userControlledConsent";
+        public const string AgentTrimmedRecording = "_original";
+
+        public bool TryValidateRecording(Dictionary<string, Stream> convertedRecordings, string key, int id)
+        {
+            if (!convertedRecordings.TryGetValue(key, out var stream) || stream == null || (stream.CanSeek && stream.Length == 0))
+                return false;
+            return true;
+        }
+
     }
 }

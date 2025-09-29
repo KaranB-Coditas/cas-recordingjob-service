@@ -1,6 +1,7 @@
 ﻿using CASRecordingFetchJob.Helpers;
 using CASRecordingFetchJob.Model;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.Design;
 
 namespace CASRecordingFetchJob.Services
 {
@@ -15,7 +16,15 @@ namespace CASRecordingFetchJob.Services
         }
         public async Task<int> GetSeekTimeInSecondsAsync(int leadtransitId)
         {
-            return await _db.GetAgentCallTransferedTimeDifferenceAsync(leadtransitId) ?? 0;
+            try
+            {
+                return await _db.GetAgentCallTransferedTimeDifferenceAsync(leadtransitId) ?? 0;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error in method {nameof(GetSeekTimeInSecondsAsync)}");
+                return 0;
+            }
         }
         public int GetAgentTrimTime(List<Conversation> conversation, Dictionary<int, DateTime> agentInitiatedConversationPhoneCalls)
         {
@@ -47,8 +56,9 @@ namespace CASRecordingFetchJob.Services
                         g => g.Max(x => x.CallPlacedTime) ?? DateTime.Now
                     );
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, $"Error in method {nameof(GetPhoneCalls)}");
                 return [];
             }
         }
@@ -107,8 +117,9 @@ namespace CASRecordingFetchJob.Services
 
                 return await query.ToListAsync();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, $"Error in method {nameof(GetCallDetailsAsync)}.");
                 return [];
             }
 
@@ -139,19 +150,27 @@ namespace CASRecordingFetchJob.Services
                             };
                 return await query.ToListAsync();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                _logger.LogError(e, $"Error in method {nameof(GetCallDetailsByLeadtransitIdAsync)}");
                 return [];
             }
         }
         public async Task<List<int>> GetAgentInitiatedCallEnabledCompanies(List<int> allCompany)
         {
-
-            return await _db.cas_CompanySetting
+            try
+            {
+                return await _db.cas_CompanySetting
                 .Where(a => a.SettingKey == "DisableAutomation" && a.SettingValue == Boolean.TrueString && allCompany.Contains(a.CompanyId))
                 .Select(a => a.CompanyId)
                 .ToListAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error in method {nameof(GetAgentInitiatedCallEnabledCompanies)}");
+                return [];
+            }
+            
         }
         public async Task<int> GetCompanyIdByLeadTransitId(int leadtransitId)
         {
@@ -163,8 +182,9 @@ namespace CASRecordingFetchJob.Services
                     .FirstOrDefaultAsync();
                 return companyId ?? 0;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, $"Error in method {nameof(GetCompanyIdByLeadTransitId)}");
                 return 0;
             }
         }
@@ -204,9 +224,9 @@ namespace CASRecordingFetchJob.Services
 
                 return activeCompanyIds.Except(removeCompanyIds).ToList();
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                _logger.LogError(ex, "Error fetching active company ids");
+                _logger.LogError(e, $"Error in method {nameof(GetCompanyIdsAsync)}");
 
                 return activeCompanyIds;
             }

@@ -29,7 +29,7 @@ namespace CASRecordingFetchJob.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[{companyId}] [{leadtransitId}] Recordings Copied to Content Server Failed", ex);
+                _logger.LogError(ex, $"[{companyId}] [{leadtransitId}] Recordings Copied to Content Server Failed");
                 return false;
             }
         }
@@ -51,7 +51,7 @@ namespace CASRecordingFetchJob.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[{companyId}] [{leadtransitId}] Recordings {recording.Key} Copied to Content Server Failed", ex);
+                _logger.LogError(ex, $"[{companyId}] [{leadtransitId}] Recordings {recording.Key} Copied to Content Server Failed");
                 return false;
             }
         }
@@ -70,10 +70,9 @@ namespace CASRecordingFetchJob.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[{companyId}] [{leadtransitId}] Recordings Copied to GCS Failed", ex);
+                _logger.LogError(ex, $"[{companyId}] [{leadtransitId}] Recordings Copied to GCS Failed");
                 return false;
             }
-
         }
 
         public async Task<bool> MoveRecordingToGCSAsync(KeyValuePair<string, Stream> recording, string gcsRecordingPath, int leadtransitId, int companyId)
@@ -87,7 +86,7 @@ namespace CASRecordingFetchJob.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[{companyId}] [{leadtransitId}] Recordings {recording.Key} Copied to GCS Failed", ex);
+                _logger.LogError(ex, $"[{companyId}] [{leadtransitId}] Recordings {recording.Key} Copied to GCS Failed");
                 return false;
             }
 
