@@ -19,10 +19,10 @@ namespace CASRecordingFetchJob.Controllers
             _recordingDownloader = recordingDownloader;
         }
 
-        [HttpPost("Execute")]
-        public async Task<IActionResult> Execute([FromBody] ExecuteJobPayload request)
+        [HttpPost("ExecuteAsync")]
+        public async Task<IActionResult> ExecuteAsync([FromBody] ExecuteJobPayload request)
         {
-            return await _recordingJobService.ExecuteRecordingJob(
+            return await _recordingJobService.ExecuteRecordingJobAsync(
                 request.StartDate, 
                 request.EndDate, 
                 request.CompanyId, 
@@ -34,10 +34,10 @@ namespace CASRecordingFetchJob.Controllers
                 );
         }
 
-        [HttpPost("GenerateSignedUrl")]
-        public async Task<IActionResult> GenerateSignedUrl([FromBody] SignedUrlPayload signedUrlPayload)
+        [HttpPost("GenerateSignedUrlAsync")]
+        public async Task<IActionResult> GenerateSignedUrlAsync([FromBody] SignedUrlPayload signedUrlPayload)
         {
-            var result = await _recordingJobService.GenerateSignedUrl(
+            var result = await _recordingJobService.GenerateSignedUrlAsync(
                 signedUrlPayload.LeadtransitId, 
                 signedUrlPayload.IsDualConsent, 
                 signedUrlPayload.ConversationDate, 
@@ -50,14 +50,16 @@ namespace CASRecordingFetchJob.Controllers
             return new OkObjectResult(new {signedUrl= result});
         }
 
-        [HttpPost("RestoreCdrRecordingOnVoipServer")]
-        public async Task<IActionResult> RestoreUsingScriptAsync([FromBody] List<Cdr> request)
+        [HttpPost("RestoreCdrRecordingByLeadtransitIdAsync")]
+        public async Task<IActionResult> RestoreCdrRecordingByLeadtransitIdAsync([FromQuery] int leadtransitId)
         {
-            return new OkObjectResult(await _recordingDownloader.RestoreCdrFilesOnVoipServerAsync(request));
+            if (leadtransitId <= 0)
+                return BadRequest("LeadTransitId is not valid"); 
+            return new OkObjectResult(await _recordingJobService.RestoreCdrRecordingByLeadtransitIdAsync(leadtransitId));
         }
 
-        [HttpGet("RestoreCdrRecordingOnVoipServerByDate")]
-        public async Task<IActionResult> RestoreCDRRecordings(string rawDateInput)
+        [HttpPost("RestoreCDRRecordingsByDateAsync")]
+        public async Task<IActionResult> RestoreCDRRecordingsByDateAsync([FromQuery] string rawDateInput)
         {
             if (string.IsNullOrEmpty(rawDateInput))
                 return BadRequest("Date parameter is required.");

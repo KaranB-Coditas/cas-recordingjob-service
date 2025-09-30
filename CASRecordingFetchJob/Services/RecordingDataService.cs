@@ -126,6 +126,14 @@ namespace CASRecordingFetchJob.Services
         }
         public async Task<List<Conversation>> GetCallDetailsByLeadtransitIdAsync(int leadtransitId)
         {
+            if (leadtransitId == 0) 
+            {
+                _logger.LogError(
+                    new InvalidOperationException("LeadtransitId cannot be 0"), 
+                    $"Error occurred while getting call details, leadtransitId is 0"
+                    );
+                return []; 
+            }
             try
             {
                 var query = from note in _db.cas_Note

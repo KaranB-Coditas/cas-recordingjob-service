@@ -62,6 +62,9 @@ C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\ob
 C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\Microsoft.OpenApi.dll
 C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\Microsoft.SqlServer.Server.dll
 C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\Newtonsoft.Json.dll
+C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\Pipelines.Sockets.Unofficial.dll
+C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\Polly.dll
+C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\Polly.Core.dll
 C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\Serilog.dll
 C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\Serilog.AspNetCore.dll
 C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\Serilog.Extensions.Hosting.dll
@@ -74,6 +77,7 @@ C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\ob
 C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\Serilog.Sinks.GoogleCloudLogging.dll
 C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\Serilog.Sinks.PeriodicBatching.dll
 C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\Renci.SshNet.dll
+C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\StackExchange.Redis.dll
 C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\obj\Release\net8.0\PubTmp\Out\Swashbuckle.AspNetCore.SwaggerUI.dll

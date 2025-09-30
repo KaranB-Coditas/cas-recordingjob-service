@@ -9,12 +9,14 @@ using Serilog.Sinks.GoogleCloudLogging;
 using Google.Api;
 using CASRecordingFetchJob.Middleware;
 using StackExchange.Redis;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -36,8 +38,11 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 builder.Host.UseSerilog();
 
+var redisServer = builder.Configuration.GetValue<string>("RedisServer")
+                  ?? throw new ArgumentNullException("RedisServer not configured");
+
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-    ConnectionMultiplexer.Connect("10.40.1.79:6379")
+    ConnectionMultiplexer.Connect(redisServer)
 );
 
 builder.Services.AddSingleton<IDistributedLockManager, RedisLockManager>();
@@ -54,6 +59,9 @@ builder.Services.AddScoped<RecordingDownloader>();
 builder.Services.AddScoped<CommonFunctions>();
 builder.Services.AddScoped<RecordingMover>();
 builder.Services.AddScoped<ICorrelationIdAccessor, CorrelationIdAccessor>();
+builder.Services.Configure<DailyJobSettings>(
+    builder.Configuration.GetSection("DailyJob"));
+builder.Services.AddHostedService<DailyJobHostedService>();
 
 var app = builder.Build();
 

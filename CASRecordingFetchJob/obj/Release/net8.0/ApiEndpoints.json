@@ -1,8 +1,8 @@
 [
   {
     "ContainingType": "CASRecordingFetchJob.Controllers.RecordingJobController",
-    "Method": "Execute",
-    "RelativePath": "api/RecordingJob/Execute",
+    "Method": "ExecuteAsync",
+    "RelativePath": "api/RecordingJob/ExecuteAsync",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -17,8 +17,8 @@
   },
   {
     "ContainingType": "CASRecordingFetchJob.Controllers.RecordingJobController",
-    "Method": "GenerateSignedUrl",
-    "RelativePath": "api/RecordingJob/GenerateSignedUrl",
+    "Method": "GenerateSignedUrlAsync",
+    "RelativePath": "api/RecordingJob/GenerateSignedUrlAsync",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -33,25 +33,25 @@
   },
   {
     "ContainingType": "CASRecordingFetchJob.Controllers.RecordingJobController",
-    "Method": "RestoreUsingScriptAsync",
-    "RelativePath": "api/RecordingJob/RestoreCdrRecordingOnVoipServer",
+    "Method": "RestoreCdrRecordingByLeadtransitIdAsync",
+    "RelativePath": "api/RecordingJob/RestoreCdrRecordingByLeadtransitIdAsync",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "request",
-        "Type": "System.Collections.Generic.List\u00601[[CASRecordingFetchJob.Model.Cdr, CASRecordingFetchJob, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "IsRequired": true
+        "Name": "leadtransitId",
+        "Type": "System.Int32",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
   },
   {
     "ContainingType": "CASRecordingFetchJob.Controllers.RecordingJobController",
-    "Method": "RestoreCDRRecordings",
-    "RelativePath": "api/RecordingJob/RestoreCdrRecordingOnVoipServerByDate",
-    "HttpMethod": "GET",
+    "Method": "RestoreCDRRecordingsByDateAsync",
+    "RelativePath": "api/RecordingJob/RestoreCDRRecordingsByDateAsync",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [

@@ -11,7 +11,7 @@ namespace CASRecordingFetchJob.Helpers
 
         public bool CheckRecordJobEnabled()
         {
-            return _config.GetValue<bool?>("RecordingJobEnabled") ?? true;
+            return _config.GetValue<bool?>("DailyJob:Enabled") ?? true;
         }
         public string GetRecordingsBasePath()
         {

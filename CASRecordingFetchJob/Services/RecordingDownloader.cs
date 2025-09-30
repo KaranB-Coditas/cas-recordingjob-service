@@ -91,21 +91,37 @@ namespace CASRecordingFetchJob.Services
 
         public async Task<List<Cdr>> FetchCdrDetails(List<Conversation> conversations)
         {
-            _logger.LogInformation($"Restoring CDR recordings on VOIP Monitor Server, conversation count {conversations.Count}");
-            var cdrPayloadData = _commonFunctions.GetCdrPayloadData(conversations);
-            var cdrBag = new ConcurrentBag<Cdr>();
-
-            await Parallel.ForEachAsync(cdrPayloadData, 
-                new ParallelOptions { MaxDegreeOfParallelism = 10},
-                async (payload, token) =>
+            if (conversations == null || conversations.Count == 0)
             {
-                var result = await TryFetchingCdrDetailsAsync( payload.StartTime, payload.EndTime, payload.Called);
+                _logger.LogError(
+                    new InvalidOperationException("conversations cannot be null or 0"),
+                    $"Error occurred while fetching cdr details, conversations is null or 0"
+                    );
+                return []; 
+            }
+            try
+            {
+                _logger.LogInformation($"Restoring CDR recordings on VOIP Monitor Server, conversation count {conversations.Count}");
+                var cdrPayloadData = _commonFunctions.GetCdrPayloadData(conversations);
+                var cdrBag = new ConcurrentBag<Cdr>();
 
-                if (result != null && result.Count > 0)
-                    foreach (var cdr in result)
-                        cdrBag.Add(cdr);
-            });
-            return [.. cdrBag];
+                await Parallel.ForEachAsync(cdrPayloadData,
+                    new ParallelOptions { MaxDegreeOfParallelism = 10 },
+                    async (payload, token) =>
+                    {
+                        var result = await TryFetchingCdrDetailsAsync(payload.StartTime, payload.EndTime, payload.Called);
+
+                        if (result != null && result.Count > 0)
+                            foreach (var cdr in result)
+                                cdrBag.Add(cdr);
+                    });
+                return [.. cdrBag];
+            }
+            catch (Exception)
+            {
+                return [];
+            }
+            
         }
 
         public async Task<Stream?> DownloadWithRestoreAsync(string recordingUrl, List<Cdr> cdr, bool restoreCdrRescording)
@@ -120,7 +136,6 @@ namespace CASRecordingFetchJob.Services
 
             return null;
         }
-
         public async Task<Stream?> TryDownloadAsync(string recordingUrl)
         {
             using var httpClient = new HttpClient();
@@ -135,7 +150,6 @@ namespace CASRecordingFetchJob.Services
                 ? new MemoryStream(bytes)
                 : null;
         }
-
         public async Task<bool> RestoreAllCdrFilesOnVoipServerAsync(List<DateTime> dateList)
         {
             _logger.LogInformation("Execute script on VoIP server to download CDR files");
@@ -144,6 +158,15 @@ namespace CASRecordingFetchJob.Services
         }
         public async Task<bool> RestoreCdrFilesOnVoipServerAsync(List<Cdr> cdrDetails)
         {
+            if (cdrDetails == null || cdrDetails.Count == 0) 
+            {
+                _logger.LogError(
+                    new InvalidOperationException("cdrDetails cannot be null or 0"),
+                    $"Error occurred while restoring cdr file, cdrDetails is null or 0"
+                    );
+                return false; 
+            }
+
             _logger.LogInformation("Execute script on VoIP server to download CDR files");
             var cdrFileDetails = cdrDetails.Select(cdr => new CdrFileDetails
             {

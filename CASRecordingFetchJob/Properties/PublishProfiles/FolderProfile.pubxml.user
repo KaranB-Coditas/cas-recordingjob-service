@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>C:\Users\Coditas-Admin\source\repos\CASRecordingFetchJob\CASRecordingFetchJob\bin\Release\net8.0\publish\</_PublishTargetUrl>
-    <History>True|2025-09-09T14:34:35.0911485Z||;True|2025-09-04T19:03:31.8801564+05:30||;True|2025-09-03T19:30:54.8529715+05:30||;</History>
+    <History>True|2025-09-30T10:19:35.3805743Z||;True|2025-09-29T19:38:35.3038256+05:30||;True|2025-09-09T20:04:35.0911485+05:30||;True|2025-09-04T19:03:31.8801564+05:30||;True|2025-09-03T19:30:54.8529715+05:30||;</History>
     <LastFailureDetails />
   </PropertyGroup>
 </Project>

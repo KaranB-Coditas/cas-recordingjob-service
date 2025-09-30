@@ -5,7 +5,7 @@
     "version": "1.0"
   },
   "paths": {
-    "/api/RecordingJob/Execute": {
+    "/api/RecordingJob/ExecuteAsync": {
       "post": {
         "tags": [
           "RecordingJob"
@@ -36,7 +36,7 @@
         }
       }
     },
-    "/api/RecordingJob/GenerateSignedUrl": {
+    "/api/RecordingJob/GenerateSignedUrlAsync": {
       "post": {
         "tags": [
           "RecordingJob"
@@ -67,39 +67,21 @@
         }
       }
     },
-    "/api/RecordingJob/RestoreCdrRecordingOnVoipServer": {
+    "/api/RecordingJob/RestoreCdrRecordingByLeadtransitIdAsync": {
       "post": {
         "tags": [
           "RecordingJob"
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Cdr"
-                }
-              }
-            },
-            "text/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Cdr"
-                }
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Cdr"
-                }
-              }
+        "parameters": [
+          {
+            "name": "leadtransitId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -107,8 +89,8 @@
         }
       }
     },
-    "/api/RecordingJob/RestoreCdrRecordingOnVoipServerByDate": {
-      "get": {
+    "/api/RecordingJob/RestoreCDRRecordingsByDateAsync": {
+      "post": {
         "tags": [
           "RecordingJob"
         ],
@@ -131,68 +113,6 @@
   },
   "components": {
     "schemas": {
-      "Cdr": {
-        "type": "object",
-        "properties": {
-          "cdrId": {
-            "type": "string",
-            "nullable": true
-          },
-          "caller": {
-            "type": "string",
-            "nullable": true
-          },
-          "called": {
-            "type": "string",
-            "nullable": true
-          },
-          "callDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "callEnd": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "callId": {
-            "type": "string",
-            "nullable": true
-          },
-          "duration": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "connectDuration": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "sipCalledPort": {
-            "type": "string",
-            "nullable": true
-          },
-          "sipCalledIp": {
-            "type": "string",
-            "nullable": true
-          },
-          "sipCallerIp": {
-            "type": "string",
-            "nullable": true
-          },
-          "sipCallerPort": {
-            "type": "string",
-            "nullable": true
-          },
-          "codecA": {
-            "type": "string",
-            "nullable": true
-          },
-          "codecB": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "ExecuteJobPayload": {
         "type": "object",
         "properties": {

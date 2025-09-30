@@ -88,7 +88,7 @@ namespace CASRecordingFetchJob.Services
             _lockManager = lockManager;
         }
         
-        public async Task<IActionResult> ExecuteRecordingJob(
+        public async Task<IActionResult> ExecuteRecordingJobAsync(
             DateTime? startDate = null, 
             DateTime? endDate = null, 
             int companyId = 0, 
@@ -99,13 +99,13 @@ namespace CASRecordingFetchJob.Services
             bool generateSignedUrl = false
             )
         {
-            if (!_commonFunctions.CheckRecordJobEnabled())
+            if(leadtransitId < 0)
             {
-                _logger.LogInformation("Recording Job Disabled, terminating recording job");
-                return new BadRequestObjectResult(new { error = "Recording job disabled" });
+                _logger.LogInformation("LeadtransitId must be greater than 0");
+                return new BadRequestObjectResult(new { error = "Invalid Leadtransit Id" });
             }
 
-            startDate ??= DateTime.Now;
+            startDate ??= DateTime.Now.AddDays(-1);
             endDate ??= startDate;
 
             if (endDate < startDate)
@@ -362,9 +362,9 @@ namespace CASRecordingFetchJob.Services
             return signedUrl;
         }
 
-        public async Task<string?> GenerateSignedUrl(int leadtransitId, bool isDualConsent, DateTime? conversationOn = null, bool? isUserControlledRecording = null)
+        public async Task<string?> GenerateSignedUrlAsync(int leadtransitId, bool isDualConsent, DateTime? conversationOn = null, bool? isUserControlledRecording = null)
         {
-            if (leadtransitId == 0)
+            if (leadtransitId <= 0)
             {
                 _logger.LogInformation("LeadtransitId is required");
                 return null;
@@ -397,6 +397,13 @@ namespace CASRecordingFetchJob.Services
             gcsRecordingPath = _commonFunctions.GetGcsRecordingPath(conversationDatePst);
 
             return await GenerateSignedUrl(leadtransitId, isDualConsent, isUserControlledRecording ?? false, gcsRecordingPath);
+        }
+
+        public async Task<bool> RestoreCdrRecordingByLeadtransitIdAsync(int leadtransitId)
+        {
+            var callDetails = await _recordingDataService.GetCallDetailsByLeadtransitIdAsync(leadtransitId);
+            var cdrDetails = await _recordingDownloader.FetchCdrDetails(callDetails);
+            return await _recordingDownloader.RestoreCdrFilesOnVoipServerAsync(cdrDetails);
         }
     }
 }
