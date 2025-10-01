@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CASRecordingFetchJob")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fb097fd2b9b50c503720b5be66afb93208722cd3")]
 [assembly: System.Reflection.AssemblyProductAttribute("CASRecordingFetchJob")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CASRecordingFetchJob")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

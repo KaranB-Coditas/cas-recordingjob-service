@@ -4379,11 +4379,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Coditas-Admin\\source\\repos\\CASRecordingFetchJob\\CASRecordingFetchJob\\CASRecordingFetchJob.csproj",
+      "projectUniqueName": "C:\\cas-recordingjob-service\\CASRecordingFetchJob\\CASRecordingFetchJob.csproj",
       "projectName": "CASRecordingFetchJob",
-      "projectPath": "C:\\Users\\Coditas-Admin\\source\\repos\\CASRecordingFetchJob\\CASRecordingFetchJob\\CASRecordingFetchJob.csproj",
+      "projectPath": "C:\\cas-recordingjob-service\\CASRecordingFetchJob\\CASRecordingFetchJob.csproj",
       "packagesPath": "C:\\Users\\Coditas-Admin\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Coditas-Admin\\source\\repos\\CASRecordingFetchJob\\CASRecordingFetchJob\\obj\\",
+      "outputPath": "C:\\cas-recordingjob-service\\CASRecordingFetchJob\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

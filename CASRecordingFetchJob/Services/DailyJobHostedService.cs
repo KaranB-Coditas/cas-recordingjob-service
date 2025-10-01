@@ -57,8 +57,8 @@ namespace CASRecordingFetchJob.Services
             _logger.LogInformation("Daily job started at {Time}", DateTime.Now);
 
             using var scope = _serviceProvider.CreateScope();
-            var myJobService = scope.ServiceProvider.GetRequiredService<IRecordingJobService>();
-            await myJobService.ExecuteRecordingJobAsync(leadtransitId: 2074299831);
+            var recordingJobService = scope.ServiceProvider.GetRequiredService<IRecordingJobService>();
+            await recordingJobService.ExecuteRecordingJobAsync();
 
             _logger.LogInformation("Daily job completed at {Time}", DateTime.Now);
         }

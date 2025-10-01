@@ -5,44 +5,101 @@
     "version": "1.0"
   },
   "paths": {
-    "/api/RecordingJob/Execute": {
-      "get": {
+    "/api/RecordingJob/ExecuteAsync": {
+      "post": {
+        "tags": [
+          "RecordingJob"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecuteJobPayload"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecuteJobPayload"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecuteJobPayload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/RecordingJob/GenerateSignedUrlAsync": {
+      "post": {
+        "tags": [
+          "RecordingJob"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignedUrlPayload"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignedUrlPayload"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignedUrlPayload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/RecordingJob/RestoreCdrRecordingByLeadtransitIdAsync": {
+      "post": {
         "tags": [
           "RecordingJob"
         ],
         "parameters": [
           {
-            "name": "startDate",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "date-time"
-            }
-          },
-          {
-            "name": "endDate",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "date-time"
-            }
-          },
-          {
-            "name": "companyId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 0
-            }
-          },
-          {
             "name": "leadtransitId",
             "in": "query",
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 0
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/RecordingJob/RestoreCDRRecordingsByDateAsync": {
+      "post": {
+        "tags": [
+          "RecordingJob"
+        ],
+        "parameters": [
+          {
+            "name": "rawDateInput",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -54,5 +111,66 @@
       }
     }
   },
-  "components": { }
+  "components": {
+    "schemas": {
+      "ExecuteJobPayload": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "leadtransitId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isRestoreCdrRecordingEnabled": {
+            "type": "boolean"
+          },
+          "addPauseAnnouncement": {
+            "type": "boolean"
+          },
+          "isDualConsent": {
+            "type": "boolean"
+          },
+          "generateSignedUrl": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SignedUrlPayload": {
+        "type": "object",
+        "properties": {
+          "leadtransitId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isDualConsent": {
+            "type": "boolean"
+          },
+          "conversationDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isUserControlledRecording": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
 }
