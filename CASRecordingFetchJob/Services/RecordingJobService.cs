@@ -96,7 +96,8 @@ namespace CASRecordingFetchJob.Services
             bool isRestoreCdrRecordingEnabled = false,
             bool addPauseAnnouncement = false,
             bool isDualConsent = false,
-            bool generateSignedUrl = false
+            bool generateSignedUrl = false,
+            bool IsScheduledRecordingJob = false
             )
         {
             if(leadtransitId < 0)
@@ -352,7 +353,8 @@ namespace CASRecordingFetchJob.Services
                     SignedUrl = r.SignedUrl,
                     IsRecordingAlreadyBeingProcessed = r.IsRecordingAlreadyBeingProcessed
                 }).ToList(),
-                RecordingJobCompany = recordingJobResponse.CompanyIdsToProcess.Select(id => new cas_RecordingJobCompany { CompanyId = id }).ToList()
+                RecordingJobCompany = recordingJobResponse.CompanyIdsToProcess.Select(id => new cas_RecordingJobCompany { CompanyId = id }).ToList(),
+                IsScheduledRecordingJob = IsScheduledRecordingJob
             };
             await _recordingDataService.SaveRecordingJobResultAsync(recordingJobResult);
 
