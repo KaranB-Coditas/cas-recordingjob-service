@@ -1,5 +1,6 @@
 ﻿using CASRecordingFetchJob.Helpers;
 using CASRecordingFetchJob.Model;
+using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.Design;
 
@@ -239,6 +240,22 @@ namespace CASRecordingFetchJob.Services
                 return activeCompanyIds;
             }
 
+        }
+        public async Task<bool> SaveRecordingJobResultAsync(RecordingJobResult recordingJobResult)
+        {
+            try
+            {
+                await _db.cas_RecordingJobResult.AddAsync(recordingJobResult);
+                await _db.SaveChangesAsync();
+                _logger.LogInformation("Recording job results save in DB");
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error in method {nameof(SaveRecordingJobResultAsync)}");
+                return false;
+            }
+            
         }
     }
 }

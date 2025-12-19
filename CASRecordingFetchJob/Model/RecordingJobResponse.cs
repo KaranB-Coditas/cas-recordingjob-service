@@ -5,7 +5,7 @@
         public string CorrelationId { get; set; } = string.Empty;
         public int TotalConversationFetched { get; set; }
         public List<RecordingDetails> RecordingProcessDetails { get; set; } = [];
-        public int SuccessfulCount { get; set; }
+        public int SuccessCount { get; set; }
         public int FailedCount { get; set; }
         public DateTime JobStartTime { get; set; }
         public DateTime JobEndTime { get; set; }
@@ -20,6 +20,6 @@
         public bool IsMovedToContentServer { get; set; }
         public bool IsMovedToGCS { get; set; }
         public string SignedUrl { get; set; } = string.Empty;
-        public bool IsRecordingAlreadybeingProcessed { get; set; }
+        public bool IsRecordingAlreadyBeingProcessed { get; set; }
     }
 }

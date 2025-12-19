@@ -177,7 +177,7 @@ namespace CASRecordingFetchJob.Services
             }
 
             var processDetails = new ConcurrentBag<RecordingDetails>();
-            var successfulIds = new ConcurrentBag<int>();
+            var successIds = new ConcurrentBag<int>();
             var failedIds = new ConcurrentBag<int>();
 
             await Parallel.ForEachAsync(conversationIds,
@@ -200,7 +200,7 @@ namespace CASRecordingFetchJob.Services
                         if (lockHandle == null)
                         {
                             _logger.LogInformation($"[{clientId}] [{leadtransitId}] Recording {id} is already being processed.");
-                            recordingJobInfo.IsRecordingAlreadybeingProcessed = true;
+                            recordingJobInfo.IsRecordingAlreadyBeingProcessed = true;
                             return;
                         }
 
@@ -242,7 +242,7 @@ namespace CASRecordingFetchJob.Services
                         {
                             recordingJobInfo.IsFileExist = true;
                             _logger.LogInformation($"[{clientId}] [{id}] File already exist - {id}{_commonFunctions.GetSupportedAudioFormat()}");
-                            successfulIds.Add(id);
+                            successIds.Add(id);
                             return;
                         }
 
@@ -310,7 +310,7 @@ namespace CASRecordingFetchJob.Services
                         if (generateSignedUrl)
                             recordingJobInfo.SignedUrl = await GenerateSignedUrl(id, isDualConsent, recordingIntervals != null && recordingIntervals.Count > 0, gcsRecordingPath, clientId);
 
-                        successfulIds.Add(id);
+                        successIds.Add(id);
                     }
                     catch (Exception ex)
                     {
@@ -325,15 +325,37 @@ namespace CASRecordingFetchJob.Services
                     }
                 });
 
-            recordingJobResponse.SuccessfulCount = successfulIds.Count;
+            recordingJobResponse.SuccessCount = successIds.Count;
             recordingJobResponse.FailedCount = failedIds.Count;
             recordingJobResponse.RecordingProcessDetails = processDetails.ToList();
             recordingJobResponse.JobEndTime = DateTime.Now;
 
-            _logger.LogInformation($"SuccessfulIds Count {successfulIds.Count}, FailedIds Count {failedIds.Count}");
+            _logger.LogInformation($"SuccessfulIds Count {successIds.Count}, FailedIds Count {failedIds.Count}");
             _logger.LogInformation($"FailedIds LeadtransitId {string.Join(", ", failedIds)}");
 
             _logger.LogInformation("Recording Job Ended");
+            var recordingJobResult = new RecordingJobResult() {
+                CorrelationId = Guid.Parse(recordingJobResponse.CorrelationId),
+                TotalConversationFetched = recordingJobResponse.TotalConversationFetched,
+                SuccessCount = recordingJobResponse.SuccessCount,
+                FailedCount = recordingJobResponse.FailedCount,
+                JobStartTime = recordingJobResponse.JobStartTime,
+                JobEndTime = recordingJobResponse.JobEndTime,
+                RecordingProcessDetail = recordingJobResponse.RecordingProcessDetails.Select(r => new cas_RecordingProcessDetail
+                {
+                    LeadTransitId = r.LeadTransitId,
+                    IsFileExist = r.IsFileExist,
+                    IsFetchedFromCDR = r.IsFetchedFromCDR,
+                    IsConvertedToMp3Variants = r.IsConvertedToMp3Variants,
+                    IsMovedToContentServer = r.IsMovedToContentServer,
+                    IsMovedToGCS = r.IsMovedToGCS,
+                    SignedUrl = r.SignedUrl,
+                    IsRecordingAlreadyBeingProcessed = r.IsRecordingAlreadyBeingProcessed
+                }).ToList(),
+                RecordingJobCompany = recordingJobResponse.CompanyIdsToProcess.Select(id => new cas_RecordingJobCompany { CompanyId = id }).ToList()
+            };
+            await _recordingDataService.SaveRecordingJobResultAsync(recordingJobResult);
+
             return new OkObjectResult(recordingJobResponse);
         }
 

@@ -103,8 +103,8 @@ namespace CASRecordingFetchJob.Helpers
 
             return uniqueConversations.Select(a => new CdrPayloadData
             {
-                StartTime = a.LeadCatchTime.AddMinutes(-1),
-                EndTime = a.LeadCatchTime.AddMinutes(2),
+                StartTime = ConvertTimeZoneFromUtcToPST(a.LeadCatchTime.AddMinutes(-1)),
+                EndTime = ConvertTimeZoneFromUtcToPST(a.LeadCatchTime.AddMinutes(2)),
                 Called = GetDialedNumber(a.PrimaryNumberIndex, a.ContactTel1, a.ContactTel2, a.ContactTel3, a.BestPhoneNumber)
             }).ToList();
         }

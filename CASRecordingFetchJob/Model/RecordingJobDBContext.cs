@@ -13,6 +13,8 @@ namespace CASRecordingFetchJob.Model
         public DbSet<Company> t_Company { get; set; }
         public DbSet<CompanySetting> cas_CompanySetting { get; set; }
 
+        public DbSet<RecordingJobResult> cas_RecordingJobResult { get; set; }
+
         public int? GetAgentCallTransferedTimeDifference(int leadTransitId)
         {
             var result = this.Database
