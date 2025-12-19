@@ -12,6 +12,8 @@ CREATE TABLE cas_RecordingJobResult (
     INDEX IX_JobStartTime (JobStartTime)
 );
 
+ALTER TABLE cas_RecordingJobResult ADD IsScheduledRecordingJob BIT NOT NULL DEFAULT 0;
+
 CREATE TABLE cas_RecordingProcessDetail (
     RecordingProcessId BIGINT IDENTITY(1,1) PRIMARY KEY,
     RecordingJobId BIGINT NOT NULL,
