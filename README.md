@@ -2,24 +2,14 @@
 
 # CAS Recording Job Service
 
-[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4)](https://dotnet.microsoft.com/download/dotnet/8.0)
-[![language](https://img.shields.io/badge/language-C%23-239120)](https://learn.microsoft.com/dotnet/csharp/)
-[![framework](https://img.shields.io/badge/ASP.NET%20Core-Web%20API-512BD4)](https://learn.microsoft.com/aspnet/core/)
-[![OS](https://img.shields.io/badge/OS-Windows%20%7C%20Linux-0078D4)](#-how-to-build)
-[![storage](https://img.shields.io/badge/storage-Google%20Cloud%20Storage-4285F4)](https://cloud.google.com/storage)
-[![SQL Server](https://img.shields.io/badge/database-SQL%20Server-CC2927)](https://www.microsoft.com/sql-server)
-[![Redis](https://img.shields.io/badge/lock-Redis-DC382D)](https://redis.io/)
-[![Swagger](https://img.shields.io/badge/API-Swagger-85EA2D)](#-api-endpoints)
-[![GitHub last commit](https://img.shields.io/github/last-commit/KaranB-Coditas/cas-recordingjob-service)](https://github.com/KaranB-Coditas/cas-recordingjob-service)
-[![GitHub release](https://img.shields.io/github/v/release/KaranB-Coditas/cas-recordingjob-service)](https://github.com/KaranB-Coditas/cas-recordingjob-service/releases)
-
-⭐ Star this repo on GitHub if it helps your team — your support keeps the project moving. 🙏
-
-[![Share](https://img.shields.io/badge/share-000000?logo=x&logoColor=white)](https://x.com/intent/tweet?text=Check%20out%20this%20project%20on%20GitHub:%20https://github.com/KaranB-Coditas/cas-recordingjob-service)
-[![Share](https://img.shields.io/badge/share-1877F2?logo=facebook&logoColor=white)](https://www.facebook.com/sharer/sharer.php?u=https://github.com/KaranB-Coditas/cas-recordingjob-service)
-[![Share](https://img.shields.io/badge/share-0A66C2?logo=linkedin&logoColor=white)](https://www.linkedin.com/sharing/share-offsite/?url=https://github.com/KaranB-Coditas/cas-recordingjob-service)
-[![Share](https://img.shields.io/badge/share-FF4500?logo=reddit&logoColor=white)](https://www.reddit.com/submit?title=Check%20out%20this%20project%20on%20GitHub:%20https://github.com/KaranB-Coditas/cas-recordingjob-service)
-[![Share](https://img.shields.io/badge/share-0088CC?logo=telegram&logoColor=white)](https://t.me/share/url?url=https://github.com/KaranB-Coditas/cas-recordingjob-service&text=Check%20out%20this%20project%20on%20GitHub)
+![.NET](https://img.shields.io/badge/.NET-8.0-512BD4)
+![language](https://img.shields.io/badge/language-C%23-239120)
+![framework](https://img.shields.io/badge/ASP.NET%20Core-Web%20API-512BD4)
+![OS](https://img.shields.io/badge/OS-Windows%20%7C%20Linux-0078D4)
+![storage](https://img.shields.io/badge/storage-Google%20Cloud%20Storage-4285F4)
+![SQL Server](https://img.shields.io/badge/database-SQL%20Server-CC2927)
+![Redis](https://img.shields.io/badge/lock-Redis-DC382D)
+![Swagger](https://img.shields.io/badge/API-Swagger-85EA2D)
 
 **Fetch, restore, process, and publish ConnectAndSell call recordings — from VoIP/CDR sources through audio processing into Google Cloud Storage with signed URL delivery.**
 
@@ -77,7 +67,7 @@
 
 ### Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- .NET 8 SDK
 - SQL Server access to the Castanet database
 - Redis instance for distributed locking
 - Google Cloud credentials with Storage access
@@ -87,7 +77,6 @@
 ### Run locally
 
 ```shell
-git clone https://github.com/KaranB-Coditas/cas-recordingjob-service.git
 cd cas-recordingjob-service
 
 # Update CASRecordingFetchJob/appsettings.Development.json with your environment values
@@ -95,7 +84,7 @@ dotnet restore
 dotnet run --project CASRecordingFetchJob
 ```
 
-Swagger UI (when enabled): [http://localhost:5178/swagger](http://localhost:5178/swagger)
+Swagger UI (when enabled): `http://localhost:5178/swagger`
 
 HTTPS profile also listens on `https://localhost:7108`.
 
@@ -170,8 +159,6 @@ Configure via `appsettings.json` / `appsettings.Development.json` or environment
 ## 📝 How to Build
 
 ```shell
-# Clone the repository
-git clone https://github.com/KaranB-Coditas/cas-recordingjob-service.git
 cd cas-recordingjob-service
 
 # Verify the SDK
@@ -210,7 +197,7 @@ This service is used in real recording pipelines. Gaps you hit in restore, dual 
 > [!IMPORTANT]
 > When reporting an issue, include the correlation ID from the logs, the `LeadtransitId` or date range, and whether CDR restore was required. That turns a guess into a fix.
 
-Open an [issue](https://github.com/KaranB-Coditas/cas-recordingjob-service/issues) or submit a pull request against `main`.
+Open an issue in this repository or submit a pull request against `main`.
 
 ## 📃 License
 
